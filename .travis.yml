@@ -1,0 +1,60 @@
+#=========================================================================
+# Travis CI Configuration
+#=========================================================================
+
+language: c
+
+#-------------------------------------------------------------------------
+# addons
+#-------------------------------------------------------------------------
+# We are using lcov for coverage analysis, so we need to install lcov
+# using apt. We also need to install the newer version of gcc/g++ since
+# the default version is too old.
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - lcov
+      - g++-6
+      - cmake
+      - valgrind
+
+#-------------------------------------------------------------------------
+# install
+#-------------------------------------------------------------------------
+# We need to do a hack to make gcc default to
+# gcc-6. Normally we would just set the CC/CXX environment variables, but
+# we are not using them to simplify the Makefile we give students.
+
+install:
+  - mkdir -p latest-gcc-symlinks
+  - ln -s /usr/bin/g++-6 latest-gcc-symlinks/g++
+  - ln -s /usr/bin/gcc-6 latest-gcc-symlinks/gcc
+  - export PATH=$PWD/latest-gcc-symlinks:$PATH
+
+#-------------------------------------------------------------------------
+# script
+#-------------------------------------------------------------------------
+# Build, test, and evaluate the project. We use make coverage instead of
+# make check so that we generate the reports for code coverage analysis.
+
+script:
+  - gcc -g -coverage -o avg-test avg-test.c
+  - ./avg-test
+  - gcc -g -coverage -o gcd-test gcd-test.c
+  - ./gcd-test
+  - lcov --capture --directory . --output-file coverage.info
+  - genhtml coverage.info --output-directory coverage-html
+
+#-------------------------------------------------------------------------
+# after_success
+#-------------------------------------------------------------------------
+# Assuming everything worked, we upload the coverage reports to
+# codecov.io. We use -X gcov since we already ran lcov, so there is no
+# need to rerun gcov.
+
+#after_success:
+#  - bash <(curl -s https://codecov.io/bash) -X gcov -t e0db60ef-8361-49d2-99b8-e397a23b5680
+
