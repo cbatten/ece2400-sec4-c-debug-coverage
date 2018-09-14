@@ -6,8 +6,8 @@ int gcd( int x, int y )
   while ( y != 0 ) {
     if ( x < y ) {
       int temp = x;
-      y = temp;
       x = y;
+      y = temp;
     }
     else {
       x = x - y;
