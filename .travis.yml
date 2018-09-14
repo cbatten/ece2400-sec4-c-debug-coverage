@@ -55,6 +55,6 @@ script:
 # codecov.io. We use -X gcov since we already ran lcov, so there is no
 # need to rerun gcov.
 
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash) -X gcov -t e0db60ef-8361-49d2-99b8-e397a23b5680
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
